@@ -1,0 +1,28 @@
+{
+  "name": "tallo",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/antirek/tallo.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/antirek/tallo/issues"
+  },
+  "homepage": "https://github.com/antirek/tallo#readme",
+  "dependencies": {
+    "basic-auth": "^1.0.4",
+    "config": "^1.21.0",
+    "express": "^4.14.0",
+    "joi": "^9.1.0",
+    "pug": "^2.0.0-beta6",
+    "tracer": "^0.8.3"
+  }
+}

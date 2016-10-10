@@ -1,0 +1,55 @@
+extends _layout
+block content
+  header.bar.bar-nav
+    a.icon.icon-left-nav.pull-left(href='/', data-transition="slide-out")
+    h1.title=server.name  
+      |  commands
+
+  .content
+
+    span.content-padded#success.alert.alert-success(role="alert" style="display:none;widht:100%;") 
+        span.badge.badge-positive Success 
+        span Команда выполнена
+    span.content-padded#error.alert.alert-success(role="alert" style="display:none;widht:100%;") 
+        span.badge.badge-negative Error 
+        span Команда не выполнена
+
+
+    .card
+        ul.table-view
+          each command in server.commands
+            li.table-view-cell
+                a.commandButton(
+                data-url="/server/" + server.name + "/run/" + command.name
+                data-name=command.name
+                )
+                    .well=command.name
+
+    script.
+        $('.commandButton').on('touchend', function () {
+                    $this = $(this);
+                    $success = $('#success');
+                    $error = $('#error');
+                    var result = confirm('Хотите это сделать ' + $this.data('name'));
+                    if (result) {
+                        $.ajax($this.data('url'), {
+                            success: function () {
+                                console.log('success');
+                                $success.show();
+                                setTimeout(function () {
+                                    $success.hide();
+                                }, 5000);
+                            },
+                            error: function () {
+                                console.log('error');
+                                $error.show();
+                                setTimeout(function () {
+                                    $error.hide();
+                                }, 5000);
+                            }
+                        })
+                    } else {
+                        return false;
+                    }
+                }
+        )

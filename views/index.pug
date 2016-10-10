@@ -1,0 +1,15 @@
+extends _layout
+
+block content
+
+  header.bar.bar-nav
+    h1.title Tallo
+    
+  .content
+    .card
+      ul.table-view
+        each server in servers
+          li.table-view-cell
+            a.navigate-right(href='../server/' + server.name, data-transition="slide-in")
+              strong= server.name
+
