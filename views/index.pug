@@ -1,15 +1,19 @@
 extends _layout
 
+block menu
+
+  .pure-menu.pure-menu-horizontal
+    ul.pure-menu-list
+      li.pure-menu-item
+        a.pure-menu-link(href='/') Servers
+
 block content
 
-  header.bar.bar-nav
-    h1.title Tallo
-    
-  .content
-    .card
-      ul.table-view
+  .pure-menu.custom-restricted-width
+    span.pure-menu-heading Servers
+      ul.pure-menu-list
         each server in servers
-          li.table-view-cell
-            a.navigate-right(href='../server/' + server.name, data-transition="slide-in")
-              strong= server.name
+          li.pure-menu-item
+            a.pure-menu-link(href='../server/' + server.name)
+              span= server.name
 

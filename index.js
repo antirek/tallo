@@ -72,10 +72,11 @@ var Server = function (config) {
             var commandConfig = req.server.commands.find((cmd) => {
                 return cmd.name === command;
             });
+
             if (commandConfig) {
                 var user = basicAuth(req)
                 
-                console.log(user.name, 'try exec command', command);
+                console.log(user.name, 'try exec command', command, 'on server', req.server.name);
                 console.log('command', commandConfig.run);
 
                 child_process.exec(commandConfig.run, (err) => {
