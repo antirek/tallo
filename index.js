@@ -18,7 +18,7 @@ var Server = function (config) {
                     return userConfig.name === user.name && userConfig.password === user.pass;
                 });
 
-                if (validUser) {
+                if (validUser.length > 0) {
                     //console.log('valid auth user', user.name);
                     next();
                 } else {
