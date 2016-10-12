@@ -10,25 +10,34 @@ block menu
 
 
 block content
- 
-    span#success.alert.alert-success(role="alert" style="display:none;widht:100%;") 
-        span Success 
-        span Команда выполнена
- 
-    span#error.alert.alert-success(role="alert" style="display:none;widht:100%;") 
-        span Error 
-        span Команда не выполнена
 
+    span#success(style="display:none;widht:100%;")
+        hr
+        span Success
+        br
+        span Команда выполнена
+        br
+        span.result
+        hr
+
+    span#error(style="display:none;widht:100%;")
+        hr
+        span Error
+        br
+        span Команда не выполнена
+        br
+        span.result
+        hr
 
     form.pure-form.pure-form-aligned
       fieldset
         each command in server.commands
           .pure-control-group
-          
+
             label= command.name
 
             a.commandButton2.pure-button.pure-button-primary(
-              data-url="/server/" + server.name + "/run/" + command.name
+              data-url="/server/" + group.name + "/" + server.name + "/run/" + command.name
               data-name=command.name
             ) run
 
@@ -36,28 +45,33 @@ block content
         $('.commandButton2').on('click', function () {
             $this = $(this);
             $success = $('#success');
+            $successResult=$('#success .result');
             $error = $('#error');
+            $errorResult=$('#error .result');
 
             var result = confirm('Хотите выполнить ' + $this.data('name') + '?');
 
             if (result) {
                 $.ajax($this.data('url'), {
-                    success: function () {
+                    success: function (data) {
                         console.log('success');
+                        console.log(data);
+                        $successResult.text(JSON.stringify(data));
                         $success.show();
                         setTimeout(function () {
                             $success.hide();
                         }, 5000);
                     },
-                    error: function () {
+                    error: function (j,status,et) {
                         console.log('error');
+                        $errorResult.text(status+' '+et);
                         $error.show();
                         setTimeout(function () {
                             $error.hide();
                         }, 5000);
                     }
                 })
-            
+
             } else {
                 return false;
             }

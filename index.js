@@ -5,21 +5,23 @@ var console = require('tracer').colorConsole();
 var Joi = require('joi');
 var configSchema = require('./lib/configSchema');
 
-var Server = function (config) {
+class Server {
+    constructor(config) {
+        this._config = config;
+        this._validateConfig();
+        this._init();
+    }
 
-    var app = express();
-
-    var init = function (config) {
-    
+    _init() {
+        var app = express();
         app.use((req, res, next) => {
             var user = basicAuth(req);
             if (user) {
-                var validUser = config.users.filter((userConfig) => {
+                var validUser = this._config.users.find((userConfig) => {
                     return userConfig.name === user.name && userConfig.password === user.pass;
                 });
 
-                if (validUser.length > 0) {
-                    //console.log('valid auth user', user.name);
+                if (validUser) {
                     next();
                 } else {
                     console.log('not valid auth user', user.name);
@@ -40,75 +42,91 @@ var Server = function (config) {
 
         app.use('/bower_components', express["static"]("./bower_components"));
 
-        app.get('/', (req, res)=> {            
+        app.get('/', (req, res)=> {
             res.render('index', {
-                servers: config.servers
+                groups: this._config.groups
             });
         });
 
-        app.use('/server/:name', (req, res, next) => {
+        app.use('/server/:group/:name', (req, res, next) => {
             var name = req.params.name;
-            
-            var server = config.servers.find((server) => {
-                return server.name === name;
+            var group = this._config.groups.find((g)=> {
+                return g.name === req.params.group;
             });
 
-            if (server) {
-                req.server = server;
-                next();
+            if (group) {
+                var server = group.servers.find((server) => {
+                    return server.name === name;
+                });
+
+                if (server) {
+                    req.group = group;
+                    req.server = server;
+                    next();
+                } else {
+                    next("server not exits");
+                }
             } else {
-                next("server not exits");
+                next("group not exists");
             }
         });
 
-        app.get('/server/:name', (req, res) => {
+        app.get('/server/:group/:name', (req, res) => {
             res.render('server', {
-                server: req.server
+                server: req.server,
+                group: req.group
             })
         });
 
-        app.get('/server/:name/run/:command', (req, res) => {
+        app.get('/server/:group/:name/run/:command', (req, res) => {
             var command = req.params.command;
             var commandConfig = req.server.commands.find((cmd) => {
                 return cmd.name === command;
             });
 
             if (commandConfig) {
-                var user = basicAuth(req)
-                
+                var user = basicAuth(req);
+
                 console.log(user.name, 'try exec command', command, 'on server', req.server.name);
                 console.log('command', commandConfig.run);
 
-                child_process.exec(commandConfig.run, (err) => {
+                child_process.exec(commandConfig.run, (err, stdout, stderr) => {
                     if (err) {
-                        res.sendStatus(500);
+                        res.json({
+                            status: 'not ok',
+                            error: stderr.toString()
+                        });
                     } else {
-                        res.sendStatus(200);
+                        res.json({
+                            status: "ok",
+                            result: stdout.toString()
+                        });
                     }
                 });
             } else {
-                res.sendStatus(500);
+                res.json({
+                    status: 'not ok',
+                    error: 'not command'
+                });
             }
         });
+        this._app = app;
+    }
 
-    };
-
-    Joi.validate(config, configSchema, {allowUnknown: true}, (err, config) => {
-        if (err) {
-            process.exit(1);
-        }
-        init(config);
-    });
-
-    var run = function () {
-        app.listen(config.port, () => {
-            console.log('server started on', config.port);
+    _validateConfig() {
+        Joi.validate(this._config, configSchema, {allowUnknown: true}, (err, config) => {
+            console.log(err);
+            if (err) {
+                process.exit(1);
+            }
         });
-    };
+    }
 
-    return {
-        run: run
-    };
-};
+    run() {
+        this._app.listen(this._config.port, () => {
+            console.log('server started on', this._config.port);
+        });
+    }
+}
 
 module.exports = Server;

@@ -2,18 +2,19 @@ extends _layout
 
 block menu
 
-  .pure-menu.pure-menu-horizontal
-    ul.pure-menu-list
-      li.pure-menu-item
-        a.pure-menu-link(href='/') Servers
+    .pure-menu.pure-menu-horizontal
+        ul.pure-menu-list
+            li.pure-menu-item
+                a.pure-menu-link(href='/') Servers
 
 block content
 
-  .pure-menu.custom-restricted-width
-    span.pure-menu-heading Servers
-      ul.pure-menu-list
-        each server in servers
-          li.pure-menu-item
-            a.pure-menu-link(href='../server/' + server.name)
-              span= server.name
+    .pure-menu.custom-restricted-width
+        each group in groups
+            span.pure-menu-heading=group.name
+            ul.pure-menu-list
+                each server in group.servers
+                    li.pure-menu-item
+                        a.pure-menu-link(href='/server/' + group.name + '/' + server.name)
+                            span= server.name
 
