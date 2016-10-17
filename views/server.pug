@@ -56,7 +56,7 @@ block content
                     success: function (data) {
                         console.log('success');
                         console.log(data);
-                        $successResult.text(JSON.stringify(data));
+                        $successResult.html(data.result.replace(/\n/g,'<br>'));
                         $success.show();
                         setTimeout(function () {
                             $success.hide();
