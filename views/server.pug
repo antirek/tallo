@@ -58,17 +58,11 @@ block content
                         console.log(data);
                         $successResult.html(data.result.replace(/\n/g,'<br>'));
                         $success.show();
-                        setTimeout(function () {
-                            $success.hide();
-                        }, 5000);
                     },
                     error: function (j,status,et) {
                         console.log('error');
                         $errorResult.text(status+' '+et);
                         $error.show();
-                        setTimeout(function () {
-                            $error.hide();
-                        }, 5000);
                     }
                 })
 

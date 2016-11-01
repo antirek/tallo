@@ -1,8 +1,11 @@
 var express = require('express');
 var basicAuth = require('basic-auth');
 var child_process = require('child_process');
+var session = require('express-session');
 var console = require('tracer').colorConsole();
 var Joi = require('joi');
+var bodyParser = require('body-parser');
+
 var configSchema = require('./lib/configSchema');
 
 class Server {
@@ -14,24 +17,32 @@ class Server {
 
     _init() {
         var app = express();
-        app.use((req, res, next) => {
-            var user = basicAuth(req);
+        app.use(session({
+            secret: 'abcdefghijklmnopqrstuvwxyz1234567890',
+            resave: true,
+            saveUninitialized: true
+        }));
+
+        app.get('/login', (req, res)=> {
+            res.render('login');
+        });
+        app.post('/login', bodyParser.urlencoded({extended: false}), (req, res)=> {
+            var user = req.body;
+            console.log('user', user);
             if (user) {
                 var validUser = this._config.users.find((userConfig) => {
                     return userConfig.name === user.name && userConfig.password === user.pass;
                 });
 
                 if (validUser) {
-                    next();
+                    req.session.isAuth = true;
+                    req.session.user = user;
+                    res.redirect('/');
                 } else {
-                    console.log('not valid auth user', user.name);
-                    res.set('WWW-Authenticate', 'Basic realm=Authorization Required');
-                    return res.sendStatus(401);
+                    res.redirect('/login')
                 }
-
             } else {
-                res.set('WWW-Authenticate', 'Basic realm=Authorization Required');
-                return res.sendStatus(401);
+                res.redirect('/login');
             }
         });
 
@@ -42,6 +53,14 @@ class Server {
 
         app.use('/bower_components', express["static"]("./bower_components"));
 
+        app.use((req, res, next)=> {
+            if (req.session.isAuth) {
+                next()
+            } else {
+                console.log('user not autorized');
+                res.redirect('/login');
+            }
+        });
         app.get('/', (req, res)=> {
             res.render('index', {
                 groups: this._config.groups
@@ -80,13 +99,14 @@ class Server {
 
         app.get('/server/:group/:name/run/:command', (req, res) => {
             var command = req.params.command;
+            var user = req.session.user;
             var commandConfig = req.server.commands.find((cmd) => {
                 return cmd.name === command;
             });
-
+            console.log('run command', req.params);
+            console.log('commandConfig', commandConfig);
+            console.log('user', user);
             if (commandConfig) {
-                var user = basicAuth(req);
-
                 console.log(user.name, 'try exec command', command, 'on server', req.server.name);
                 console.log('command', commandConfig.run);
 

@@ -8,13 +8,18 @@ block menu
                 a.pure-menu-link(href='/') Servers
 
 block content
-
     .pure-menu.custom-restricted-width
         each group in groups
-            span.pure-menu-heading=group.name
-            ul.pure-menu-list
+            a.pure-menu-heading.menuLabel(data-target="#" + group.name href="#")=group.name
+            ul.pure-menu-list(id=group.name style="display:none;")
                 each server in group.servers
                     li.pure-menu-item
                         a.pure-menu-link(href='/server/' + group.name + '/' + server.name)
                             span= server.name
 
+    script.
+        $('.menuLabel').on('click', function () {
+            var target = $(this).data('target')
+            $(target).toggle()
+            return false;
+        })
