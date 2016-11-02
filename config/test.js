@@ -2,7 +2,7 @@ module.exports = {
     "port": 3000,
     "groups": [
         {
-            "name": "group1",
+            "name": "Влажные ватрушки",
             "servers": [
 
                 {

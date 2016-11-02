@@ -9,9 +9,9 @@ block menu
 
 block content
     .pure-menu.custom-restricted-width
-        each group in groups
-            a.pure-menu-heading.menuLabel(data-target="#" + group.name href="#")=group.name
-            ul.pure-menu-list(id=group.name style="display:none;")
+        each group,index in groups
+            a.pure-menu-heading.menuLabel(data-target="#serverGroup" + index href="#")=group.name
+            ul.pure-menu-list(id="serverGroup" + index style="display:none;")
                 each server in group.servers
                     li.pure-menu-item
                         a.pure-menu-link(href='/server/' + group.name + '/' + server.name)
